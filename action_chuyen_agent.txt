@@ -1,0 +1,110 @@
+### nlu
+- intent: chuyển_đến_tư_vấn_viên
+  examples: |
+    - chuyển agent
+    - chuyển đến tư vấn viên
+    - cho tôi gặp agent
+    - gặp tư vấn viên
+    - gặp [anh](pronoun) [Toan](agent)
+    - cho tôi gặp [anh](pronoun) [Quang Toán](agent)
+    - kết nối đến [anh](pronoun) [Quang Toán](agent)
+    - liên hệ [anh](pronoun) [Nguyễn Quang Toán](agent)
+    - chuyển máy cho tôi gặp [anh](pronoun) [Nguyễn Quang Toán](agent)
+    - gặp [Cường](agent)
+    - cho tôi gặp [Cường](agent)
+    - tôi muốn gặp [Việt Cường](agent)
+    - kết nối đến [Việt Cường](agent)
+    - liên hệ [Mai Việt Cường](agent)
+    - chuyển máy cho tôi gặp [Mai Việt Cường](agent)
+    - gặp [Huy](agent)
+    - cho tôi gặp [Huy](agent)
+    - tôi muốn gặp [Quang Huy](agent)
+    - kết nối đến [Quang Huy](agent)
+    - liên hệ [Nguyễn Quang Huy](agent)
+    - chuyển máy cho tôi gặp [Nguyễn Quang Huy](agent)
+    - gặp [Toán](agent)
+    - cho tôi gặp [Toán](agent)
+    - tôi muốn gặp [Quang Toán](agent)
+    - kết nối đến [Quang Toán](agent)
+    - liên hệ [Nguyễn Quang Toán](agent)
+    - chuyển máy cho tôi gặp [Nguyễn Quang Toán](agent)
+    - gặp [Đại](agent)
+    - cho tôi gặp [Đại](agent)
+    - tôi muốn gặp [Văn Đại](agent)
+    - kết nối đến [Văn Đại](agent)
+    - liên hệ [Nguyễn Văn Đại](agent)
+    - chuyển máy cho tôi gặp [Nguyễn Văn Đại](agent)
+    - gặp [Tín](agent)
+    - cho tôi gặp [Tín](agent)
+    - tôi muốn gặp [Trung Tín](agent)
+    - kết nối đến [Trung Tín](agent)
+    - liên hệ [Huỳnh Trung Tín](agent)
+    - chuyển máy cho tôi gặp [Huỳnh Trung Tín](agent)
+    - gặp [Duy](agent)
+    - cho tôi gặp [Duy](agent)
+    - tôi muốn gặp [Trọng Duy](agent)
+    - kết nối đến [Trọng Duy](agent)
+    - liên hệ [Nguyễn Trọng Duy](agent)
+    - chuyển máy cho tôi gặp [Nguyễn Trọng Duy](agent)
+    - gặp [Tài](agent)
+    - cho tôi gặp [Tài](agent)
+    - tôi muốn gặp [Ngọc Tài](agent)
+    - kết nối đến [Ngọc Tài](agent)
+    - liên hệ [Phạm Ngọc Tài](agent)
+    - chuyển máy cho tôi gặp [Phạm Ngọc Tài](agent)
+    - gặp [Dũng](agent)
+    - cho tôi gặp [Dũng](agent)
+    - tôi muốn gặp [Văn Dũng](agent)
+    - kết nối đến [Văn Dũng](agent)
+    - liên hệ [Phạm Văn Dũng](agent)
+    - chuyển máy cho tôi gặp [Phạm Văn Dũng](agent)
+    - gặp [Đạt](agent)
+    - cho tôi gặp [Đạt](agent)
+    - tôi muốn gặp [Thành Đạt](agent)
+    - kết nối đến [Thành Đạt](agent)
+    - liên hệ [Phan Thành Đạt](agent)
+    - chuyển máy cho tôi gặp [Phan Thành Đạt](agent)
+
+### domain.yml
+utter_handover:
+  - text: "Dạ vâng, tổng đài đang kết nối tới tư vấn viên. Vui lòng đợi trong giây lát..."
+  - text: "Yêu cầu của {pronoun} đang được thực hiện. Vui lòng đợi trong giây lát..."
+
+entities:
+  - agent
+
+
+class ActionHandOver(Action):
+    def name(self) -> Text:
+        return "action_handover"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        list_agent_id = []
+        list_agent_name = []
+        agent_obj = []
+
+        agents = list_agent()
+
+        current_name_agent = next(tracker.get_latest_entity_values("agent"), None)
+        #print(current_name_agent)
+        if current_name_agent == None:
+            dispatcher.utter_message(response="utter_handover")
+            return
+
+        for i in range(len(agents)):
+            pattern = create_pattern(agents[i]['name'])
+            if re.search(pattern, current_name_agent,flags=re.I):
+                #dispatcher.utter_message('id: {}'.format(agents[i]['id']))
+                list_agent_id.append(agents[i]['id'])
+
+        if len(list_agent_id) == 0:
+            dispatcher.utter_message("Không tìm thấy agent @@")
+        else:
+            dispatcher.utter_message("id: {}".format(random.choice(list_agent_id)))
+
+
+        # print(current_name_agent)
+        print(list_agent_id)
